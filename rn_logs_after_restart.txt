@@ -1,0 +1,23 @@
+﻿--------- beginning of main
+08-31 19:36:20.101 14262 14561 W ReactNativeJS: Cannot connect to Metro.
+08-31 19:36:20.101 14262 14561 W ReactNativeJS: 
+08-31 19:36:20.101 14262 14561 W ReactNativeJS: Try the following to fix the issue:
+08-31 19:36:20.101 14262 14561 W ReactNativeJS: - Ensure that Metro is running and available on the same network
+08-31 19:36:20.101 14262 14561 W ReactNativeJS: - Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices
+08-31 19:36:20.101 14262 14561 W ReactNativeJS: - If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device
+08-31 19:36:20.101 14262 14561 W ReactNativeJS: - If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081
+08-31 19:36:20.101 14262 14561 W ReactNativeJS: 
+08-31 19:36:20.101 14262 14561 W ReactNativeJS: URL: localhost:8081
+08-31 19:36:20.101 14262 14561 W ReactNativeJS: 
+08-31 19:36:20.101 14262 14561 W ReactNativeJS: Error: undefined
+08-31 19:39:28.044 14952 15462 W ReactNativeJS: Cannot connect to Metro.
+08-31 19:39:28.044 14952 15462 W ReactNativeJS: 
+08-31 19:39:28.044 14952 15462 W ReactNativeJS: Try the following to fix the issue:
+08-31 19:39:28.044 14952 15462 W ReactNativeJS: - Ensure that Metro is running and available on the same network
+08-31 19:39:28.044 14952 15462 W ReactNativeJS: - Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices
+08-31 19:39:28.044 14952 15462 W ReactNativeJS: - If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device
+08-31 19:39:28.044 14952 15462 W ReactNativeJS: - If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081
+08-31 19:39:28.044 14952 15462 W ReactNativeJS: 
+08-31 19:39:28.044 14952 15462 W ReactNativeJS: URL: localhost:8081
+08-31 19:39:28.044 14952 15462 W ReactNativeJS: 
+08-31 19:39:28.044 14952 15462 W ReactNativeJS: Error: undefined

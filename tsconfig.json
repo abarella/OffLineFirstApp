@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["ESNext"],
+  "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+  "moduleResolution": "node",
+    "skipLibCheck": true,
+    "strict": false,
+    "resolveJsonModule": true,
+    "noEmit": true,
+  "types": ["react", "react-native", "node"]
+  ,"typeRoots": ["./node_modules/@types"]
+  },
+  "include": ["src/**/*", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "**/node_modules/*", "**/Pods", "android", "ios", "__tests__"]
+}

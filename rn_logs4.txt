@@ -1,0 +1,51 @@
+﻿--------- beginning of main
+08-31 18:07:19.339  9448 10210 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:07:49.345  9448 10210 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:08:12.083  9448 10229 I ReactNativeJS: Running "OfflineFirstApp" with {"rootTag":1,"initialProps":{},"fabric":true}
+08-31 18:08:12.226  9448 10229 I ReactNativeJS: Promise based runtime ready
+08-31 18:08:12.240  9448 10229 W ReactNativeJS: SafeAreaView has been deprecated and will be removed in a future release. Please use 'react-native-safe-area-context' instead. See https://github.com/th3rdwave/react-native-safe-area-context
+08-31 18:08:12.426  9448 10229 I ReactNativeJS: OPEN database: OfflineFirstDB
+08-31 18:08:12.427  9448 10229 I ReactNativeJS: SQLite.open({"name":"OfflineFirstDB","location":"default","dblocation":"nosync"})
+08-31 18:08:12.482  9448 10229 I ReactNativeJS: new transaction is waiting for open operation
+08-31 18:08:12.487  9448 10229 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"\n      CREATE TABLE IF NOT EXISTS equipment (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        nome TEXT NOT NULL,\n        enderecoIP TEXT NOT NULL,\n        localizacao TEXT NOT NULL,\n        tipoEquipamento TEXT NOT NULL,\n        status TEXT NOT NULL,\n        createdAt TEXT NOT NULL,\n        updatedAt TEXT NOT NULL,\n        syncStatus TEXT NOT NULL DEFAULT 'pending_sync'\n      );\n    ","params":[]}]})
+08-31 18:08:12.505  9448 10229 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"\n      CREATE TABLE IF NOT EXISTS sync_operations (\n        id TEXT PRIMARY KEY,\n        operation TEXT NOT NULL,\n        equipmentId INTEGER NOT NULL,\n        data TEXT,\n        timestamp TEXT NOT NULL\n      );\n    ","params":[]}]})
+08-31 18:08:12.513  9448 10229 I ReactNativeJS: Tables created successfully
+08-31 18:08:12.514  9448 10229 I ReactNativeJS: Database initialized successfully
+08-31 18:08:12.515  9448 10229 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM equipment ORDER BY createdAt DESC","params":[]}]})
+08-31 18:08:12.519  9448 10229 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:08:42.439  9448 10229 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:08:58.360  9448 10243 I ReactNativeJS: Running "OfflineFirstApp" with {"rootTag":1,"initialProps":{},"fabric":true}
+08-31 18:08:58.504  9448 10243 I ReactNativeJS: Promise based runtime ready
+08-31 18:08:58.518  9448 10243 W ReactNativeJS: SafeAreaView has been deprecated and will be removed in a future release. Please use 'react-native-safe-area-context' instead. See https://github.com/th3rdwave/react-native-safe-area-context
+08-31 18:08:58.705  9448 10243 I ReactNativeJS: OPEN database: OfflineFirstDB
+08-31 18:08:58.705  9448 10243 I ReactNativeJS: SQLite.open({"name":"OfflineFirstDB","location":"default","dblocation":"nosync"})
+08-31 18:08:58.760  9448 10243 I ReactNativeJS: new transaction is waiting for open operation
+08-31 18:08:58.766  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"\n      CREATE TABLE IF NOT EXISTS equipment (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        nome TEXT NOT NULL,\n        enderecoIP TEXT NOT NULL,\n        localizacao TEXT NOT NULL,\n        tipoEquipamento TEXT NOT NULL,\n        status TEXT NOT NULL,\n        createdAt TEXT NOT NULL,\n        updatedAt TEXT NOT NULL,\n        syncStatus TEXT NOT NULL DEFAULT 'pending_sync'\n      );\n    ","params":[]}]})
+08-31 18:08:58.786  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"\n      CREATE TABLE IF NOT EXISTS sync_operations (\n        id TEXT PRIMARY KEY,\n        operation TEXT NOT NULL,\n        equipmentId INTEGER NOT NULL,\n        data TEXT,\n        timestamp TEXT NOT NULL\n      );\n    ","params":[]}]})
+08-31 18:08:58.794  9448 10243 I ReactNativeJS: Tables created successfully
+08-31 18:08:58.795  9448 10243 I ReactNativeJS: Database initialized successfully
+08-31 18:08:58.796  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM equipment ORDER BY createdAt DESC","params":[]}]})
+08-31 18:08:58.800  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:09:28.713  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:09:58.717  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:10:28.722  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:10:45.742  9448 10243 W ReactNativeJS: Cannot connect to Metro.
+08-31 18:10:45.742  9448 10243 W ReactNativeJS: 
+08-31 18:10:45.742  9448 10243 W ReactNativeJS: Try the following to fix the issue:
+08-31 18:10:45.742  9448 10243 W ReactNativeJS: - Ensure that Metro is running and available on the same network
+08-31 18:10:45.742  9448 10243 W ReactNativeJS: - Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices
+08-31 18:10:45.742  9448 10243 W ReactNativeJS: - If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device
+08-31 18:10:45.742  9448 10243 W ReactNativeJS: - If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081
+08-31 18:10:45.742  9448 10243 W ReactNativeJS: 
+08-31 18:10:45.742  9448 10243 W ReactNativeJS: URL: localhost:8081
+08-31 18:10:45.742  9448 10243 W ReactNativeJS: 
+08-31 18:10:45.742  9448 10243 W ReactNativeJS: Error: undefined
+08-31 18:10:58.723  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:11:28.726  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:11:58.732  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:12:28.735  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:12:58.736  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:13:28.737  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:13:58.744  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:14:28.749  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
+08-31 18:14:58.752  9448 10243 I ReactNativeJS: SQLite.backgroundExecuteSqlBatch({"dbargs":{"dbname":"OfflineFirstDB"},"executes":[{"qid":1111,"sql":"SELECT 1","params":[]},{"qid":1111,"sql":"SELECT * FROM sync_operations ORDER BY timestamp ASC","params":[]}]})
