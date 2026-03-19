@@ -12,6 +12,83 @@ Uma aplicação React Native que implementa o conceito **Offline First** para ge
 - **Filtros e Busca**: Filtros por status e busca por texto
 - **Validação**: Validação de formulários em tempo real
 
+## ✅ Funcionalidades do Projeto
+
+### Gestão de Equipamentos
+- Cadastro de equipamento com os campos: nome, IP, localização, tipo e status
+- Edição de equipamentos existentes
+- Remoção de equipamentos
+- Listagem completa de equipamentos cadastrados
+- Busca textual por equipamentos
+- Filtro por status (Ativo, Inativo, Em Manutenção)
+
+### Fluxo Offline First
+- Persistência local com SQLite para funcionar sem internet
+- Operações locais marcadas para sincronização posterior
+- Fila de sincronização para create/update/delete
+- Continuidade de uso mesmo sem conexão com o servidor
+
+### Sincronização com Servidor
+- Sincronização automática quando o app está online
+- Sincronização manual pelo usuário
+- Processamento em lote de alterações pendentes
+- Controle de estados de sincronização por registro:
+  - `synced`
+  - `pending_sync`
+  - `pending_update`
+  - `pending_delete`
+- Indicador visual de online/offline e de pendências
+- Registro de última sincronização
+
+### Interface e Experiência
+- Tela principal com listagem e ações de CRUD
+- Modal/formulário com validação em tempo real
+- Pull-to-refresh para atualizar os dados
+- Feedback visual para operações e estados de sincronização
+
+## 📐 Análise de Ponto de Função (estimativa inicial)
+
+Esta análise é uma **estimativa funcional preliminar** baseada no escopo atual do app de gestão de equipamentos com operação offline e sincronização.
+
+### Fronteira da aplicação
+- Aplicação móvel React Native para cadastro e gestão de equipamentos
+- Persistência local com SQLite e integração com SQL Server para sincronização
+
+### Funções de Dados
+
+| Tipo | Descrição | Qtd | Complexidade | Peso | Total PF |
+|------|-----------|-----|--------------|------|----------|
+| ALI | Equipamentos locais (SQLite) | 1 | Baixa | 7 | 7 |
+| ALI | Fila/controle de sincronização local | 1 | Baixa | 7 | 7 |
+| AIE | Estrutura externa no SQL Server | 1 | Baixa | 5 | 5 |
+
+Subtotal Funções de Dados: **19 PF**
+
+### Funções Transacionais
+
+| Tipo | Descrição | Qtd | Complexidade | Peso | Total PF |
+|------|-----------|-----|--------------|------|----------|
+| EE | Incluir equipamento | 1 | Baixa | 3 | 3 |
+| EE | Alterar equipamento | 1 | Baixa | 3 | 3 |
+| EE | Excluir equipamento | 1 | Baixa | 3 | 3 |
+| EE | Acionar sincronização manual | 1 | Baixa | 3 | 3 |
+| CE | Consultar/listar equipamentos (com busca/filtro) | 1 | Média | 4 | 4 |
+| CE | Consultar pendências/estado de sync | 1 | Baixa | 3 | 3 |
+| SE | Exibir status consolidado de sincronização | 1 | Baixa | 4 | 4 |
+
+Subtotal Funções Transacionais: **23 PF**
+
+### Resultado da estimativa
+
+- **PF Não Ajustado (PFNA)**: `19 + 23 = 42 PF`
+- Classificação indicativa de porte: **pequeno para médio** (dependendo do critério da organização)
+
+### Observações
+
+- Estimativa inicial, sujeita a revisão após detalhamento técnico e regras de negócio finais.
+- A sincronização automática, tratamento de conflitos e cenários de erro podem elevar a complexidade transacional.
+- Recomenda-se validar a contagem com método oficial IFPUG/COSMIC adotado pela organização antes de contratação ou baseline formal.
+
 ## 📱 Campos do Equipamento
 
 - **Nome do Equipamento**: Nome identificador do equipamento
@@ -139,7 +216,7 @@ npm run android
 ```bash
 npm run ios
 ```
-## 📦 Gerar e Instalar APK (Release) — instalação definitiva no dispositivo
+## 📦 Gerar e Instalar APK (Release) — instalação direta no dispositivo
 
 Siga estes passos para gerar um APK de *release* (sem depender do Metro) e instalar diretamente no seu dispositivo Android (ex.: `motorola_edge_30`). Os comandos abaixo são para PowerShell no Windows.
 
@@ -210,6 +287,111 @@ Dica: você também pode rodar diretamente (modo release) via CLI se preferir:
 Set-Location 'C:\PROJETOS\OFFLINEFIRST\OfflineFirstApp'
 # executa build e instala em um device conectado
 npx react-native run-android --variant=release
+```
+
+## 📦 Geração de `.aab` para Google Play (Teste Interno)
+
+Esta seção é o fluxo recomendado para publicar no track **Teste Interno** da Play Console.
+
+### 1) Criar keystore de upload (uma vez)
+
+No diretório `android/app`:
+
+```powershell
+Set-Location 'C:\PROJETOS\OfflineFirstApp\android\app'
+keytool -genkeypair -v -storetype PKCS12 -keystore upload-key.keystore -alias upload-key-alias -keyalg RSA -keysize 2048 -validity 10000
+```
+
+### 2) Configurar assinatura de release
+
+No arquivo `android/gradle.properties`, configure:
+
+```properties
+MYAPP_UPLOAD_STORE_FILE=upload-key.keystore
+MYAPP_UPLOAD_KEY_ALIAS=upload-key-alias
+MYAPP_UPLOAD_STORE_PASSWORD=<SUA_SENHA>
+MYAPP_UPLOAD_KEY_PASSWORD=<SUA_SENHA>
+```
+
+No arquivo `android/app/build.gradle`, o `buildTypes.release` deve usar `signingConfigs.release`.
+
+### 3) Gerar o bundle Android (`.aab`)
+
+No diretório `android`:
+
+```powershell
+Set-Location 'C:\PROJETOS\OfflineFirstApp\android'
+.\gradlew.bat bundleRelease
+```
+
+Arquivo gerado:
+
+```text
+android/app/build/outputs/bundle/release/app-release.aab
+```
+
+### 4) Publicar no Teste Interno (Play Console)
+
+1. Acesse sua app na Play Console
+2. Vá em **Testes > Teste interno**
+3. Clique em **Criar versão**
+4. Faça upload do `app-release.aab`
+5. Preencha notas da versão
+6. **Salvar** > **Revisar versão** > **Publicar no teste interno**
+
+### 5) Adicionar testadores
+
+- Crie/atualize a lista de e-mails no track de teste interno
+- Compartilhe o link de convite (opt-in)
+- Após aceitar, os testadores instalam pela Play Store
+
+### Observações importantes
+
+- O `applicationId` atual é `com.offlinefirstapp`; ele identifica a app na Play.
+- Para novas versões, incremente o `versionCode` e atualize `versionName` em `android/app/build.gradle`.
+- Nunca perca a keystore e senhas, ou você não conseguirá atualizar a app futuramente.
+
+## ✅ Checklist pré-publicação (Play Console)
+
+Antes de enviar uma versão para **Teste Interno** (ou produção), valide:
+
+### App e Build
+- [ ] `versionCode` incrementado em relação à versão anterior
+- [ ] `versionName` atualizado (ex.: `1.0.1`)
+- [ ] `applicationId` correto e definitivo
+- [ ] `.aab` gerado com assinatura de release (sem debug keystore)
+- [ ] Teste básico realizado no dispositivo real (abertura, navegação e sync)
+
+### Qualidade mínima
+- [ ] App abre sem tela vermelha (`Unable to load script`)
+- [ ] Sem crash nas telas principais (lista, cadastro, edição, exclusão)
+- [ ] Fluxo offline/online validado com sincronização
+- [ ] Permissões solicitadas apenas quando necessárias
+
+### Play Console (dados obrigatórios)
+- [ ] Nome do app, descrição curta e descrição completa preenchidos
+- [ ] Ícone de alta resolução enviado (512x512)
+- [ ] Feature graphic enviada (1024x500), se aplicável ao layout atual da Play
+- [ ] Capturas de tela do app enviadas (telefone obrigatório)
+- [ ] E-mail de contato e política de privacidade informados
+
+### Formulários de conformidade
+- [ ] Classificação de conteúdo concluída
+- [ ] Questionário de segurança de dados preenchido (Data Safety)
+- [ ] Público-alvo e conteúdo definidos corretamente
+- [ ] Declaração de anúncios marcada corretamente (se houver Ads)
+
+### Teste Interno
+- [ ] Track **Teste interno** criado/configurado
+- [ ] Lista de testadores adicionada (e-mails ou grupo)
+- [ ] Notas da versão preenchidas
+- [ ] Versão publicada no track de teste
+- [ ] Link de opt-in compartilhado com testadores
+
+### Pós-publicação do teste
+- [ ] Confirmar que testadores conseguem instalar pela Play Store
+- [ ] Coletar feedback de funcionamento (offline, sync, UX, desempenho)
+- [ ] Corrigir pendências e subir nova build incrementando `versionCode`
 
 ## 🔄 Como Funciona a Sincronização
 
