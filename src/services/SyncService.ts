@@ -1,22 +1,10 @@
 import { Equipment, SyncStatus } from '../types/Equipment';
 import DatabaseService from './DatabaseService';
-import MySQLService from './MySQLService';
-
-interface SyncConfig {
-  serverUrl: string;
-  database: string;
-  username: string;
-  password: string;
-}
+import ApiService from './ApiService';
 
 class SyncService {
-  private config: SyncConfig | null = null;
   private isOnline: boolean = false;
   private syncInterval: NodeJS.Timeout | null = null;
-
-  setConfig(config: SyncConfig): void {
-    this.config = config;
-  }
 
   setOnlineStatus(online: boolean): void {
     this.isOnline = online;
@@ -47,8 +35,8 @@ class SyncService {
   }
 
   async syncPendingOperations(): Promise<void> {
-    if (!this.isOnline || !this.config) {
-      console.log('Cannot sync: offline or no config');
+    if (!this.isOnline) {
+      console.log('Cannot sync: offline');
       return;
     }
 
@@ -78,18 +66,22 @@ class SyncService {
   }
 
   private async processSyncOperation(operation: any): Promise<void> {
-    if (!this.config) throw new Error('No sync config');
-
     const { operation: opType, equipmentId, data } = operation;
 
     switch (opType) {
       case 'CREATE':
-        await this.createEquipmentOnServer(data);
+        await this.createEquipmentOnServer({
+          ...(data || {}),
+          id: equipmentId,
+        });
         await DatabaseService.markEquipmentAsSynced(equipmentId);
         break;
       
       case 'UPDATE':
-        await this.updateEquipmentOnServer(data);
+        await this.updateEquipmentOnServer({
+          ...(data || {}),
+          id: equipmentId,
+        });
         await DatabaseService.markEquipmentAsSynced(equipmentId);
         break;
       
@@ -104,30 +96,30 @@ class SyncService {
 
   private async createEquipmentOnServer(equipment: Equipment): Promise<void> {
     try {
-      await MySQLService.createEquipment(equipment);
-      console.log('Equipment created successfully on MySQL');
+      await ApiService.createEquipment(equipment);
+      console.log('Equipment created successfully on API');
     } catch (error) {
-      console.error('Error creating equipment on MySQL:', error);
+      console.error('Error creating equipment on API:', error);
       throw error;
     }
   }
 
   private async updateEquipmentOnServer(equipment: Equipment): Promise<void> {
     try {
-      await MySQLService.updateEquipment(equipment);
-      console.log('Equipment updated successfully on MySQL');
+      await ApiService.updateEquipment(equipment);
+      console.log('Equipment updated successfully on API');
     } catch (error) {
-      console.error('Error updating equipment on MySQL:', error);
+      console.error('Error updating equipment on API:', error);
       throw error;
     }
   }
 
   private async deleteEquipmentOnServer(equipmentId: number): Promise<void> {
     try {
-      await MySQLService.deleteEquipment(equipmentId);
-      console.log('Equipment deleted successfully on MySQL');
+      await ApiService.deleteEquipment(equipmentId);
+      console.log('Equipment deleted successfully on API');
     } catch (error) {
-      console.error('Error deleting equipment on MySQL:', error);
+      console.error('Error deleting equipment on API:', error);
       throw error;
     }
   }

@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 // Configuração para conexão com SQL Server
 // Em produção, essas informações devem ser armazenadas de forma segura
 export const SQL_SERVER_CONFIG = {
@@ -38,14 +40,15 @@ export const MYSQL_CONFIG = {
 
 // Configuração para API REST (alternativa ao SQL Server direto)
 export const API_CONFIG = {
-  baseUrl: 'https://your-api-domain.com/api',
+  // Android emulator: 10.0.2.2 aponta para localhost da maquina host.
+  // iOS simulator: localhost funciona diretamente.
+  // Dispositivo fisico: troque para o IP da maquina na rede local.
+  baseUrl: Platform.OS === 'android' ? 'http://10.0.2.2:3001/api' : 'http://localhost:3001/api',
   endpoints: {
     equipment: '/equipment',
-    sync: '/sync',
   },
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer your-api-token',
   },
 };
 
