@@ -18,6 +18,24 @@ export const SQL_SERVER_CONFIG = {
   },
 };
 
+// Configuração para conexão com MySQL
+// Observação: esta app faz conexão direta a partir do client (React Native).
+// Em cenários reais é comum usar um backend/proxy REST.
+export const MYSQL_CONFIG = {
+  // phpMyAdmin: https://abjinfo.com.br/phpmyadmin/...
+  // Para o driver MySQL, use apenas o host (sem scheme/path).
+  host: 'abjinfo.com.br',
+  database: 'admin_web',
+  user: 'admin_user',
+  password: 'ABj!010359',
+  // Porta padrão do MySQL.
+  port: 3306,
+  // TLS/SSL (opcional). Para desenvolvimento pode ser necessário ajustar.
+  // ssl: { rejectUnauthorized: false },
+  connectTimeout: 30000,
+  connectionLimit: 10,
+};
+
 // Configuração para API REST (alternativa ao SQL Server direto)
 export const API_CONFIG = {
   baseUrl: 'https://your-api-domain.com/api',

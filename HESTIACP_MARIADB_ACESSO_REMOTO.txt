@@ -1,0 +1,117 @@
+HestiaCP + Ubuntu + MariaDB - Habilitar acesso remoto com segurança
+===================================================================
+
+IMPORTANTE
+- Execute via SSH no servidor.
+- Faça backup antes de qualquer alteração.
+- Se algo der errado, use o bloco de rollback no final.
+- Verificar a senha do root
+-     cat /usr/local/hestia/conf/mysql.conf
+
+1) Descobrir arquivos de configuração carregados
+-----------------------------------------------
+Comando:
+sudo mariadbd --help --verbose | grep -A 1 "Default options"
+
+Arquivos comuns no Ubuntu/Hestia:
+- /etc/mysql/mariadb.conf.d/50-server.cnf
+- /etc/mysql/my.cnf
+
+
+2) Backup dos arquivos de configuração
+--------------------------------------
+Comandos:
+sudo cp /etc/mysql/mariadb.conf.d/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf.bak 2>/dev/null || true
+sudo cp /etc/mysql/my.cnf /etc/mysql/my.cnf.bak 2>/dev/null || true
+
+
+3) Ajustar bind-address no MariaDB
+----------------------------------
+Abra o arquivo principal (normalmente 50-server.cnf):
+sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+
+No bloco [mysqld], ajuste para:
+bind-address = 0.0.0.0
+
+Se existir "skip-networking", deixe comentado:
+#skip-networking
+
+Salve e feche.
+
+
+4) Reiniciar e validar MariaDB
+------------------------------
+Comandos:
+sudo systemctl restart mariadb
+sudo systemctl status mariadb --no-pager
+ss -ltnp | grep 3306
+
+Esperado:
+- MariaDB ativo
+- Porta 3306 escutando em 0.0.0.0:3306 (ou no IP do servidor)
+
+
+5) Liberar firewall da porta 3306
+---------------------------------
+Verificar firewall:
+sudo ufw status
+
+Recomendado (somente seu IP público):
+sudo ufw allow from SEU_IP_PUBLICO to any port 3306 proto tcp
+
+Temporário para teste (menos seguro):
+sudo ufw allow 3306/tcp
+
+
+6) Criar/Ajustar usuário remoto no MariaDB
+------------------------------------------
+Entrar no MariaDB:
+sudo mariadb
+
+Verificar usuário:
+SELECT User, Host FROM mysql.user WHERE User='admin_user';
+
+Se precisar liberar remoto:
+CREATE USER IF NOT EXISTS 'admin_user'@'%' IDENTIFIED BY 'ABj!010359';
+GRANT ALL PRIVILEGES ON admin_web.* TO 'admin_user'@'%';
+FLUSH PRIVILEGES;
+
+Saída:
+exit
+
+Observação de segurança:
+- Ideal substituir '%' pelo IP público fixo do cliente.
+
+
+7) Teste externo a partir do notebook
+-------------------------------------
+No Windows (PowerShell):
+Test-NetConnection 177.26.122.170 -Port 3306 -InformationLevel Detailed
+
+Esperado:
+- TcpTestSucceeded : True
+
+
+8) Teste direto de conexão MySQL (Node)
+---------------------------------------
+Na pasta do projeto (onde existe mysql2 instalado), testar:
+node -e "const mysql=require('mysql2/promise'); (async()=>{const c=await mysql.createConnection({host:'177.26.122.170',user:'admin_user',password:'ABj!010359',database:'admin_web',port:3306,connectTimeout:15000}); const [rows]=await c.query('SELECT 1 AS ok'); console.log(rows); await c.end();})().catch(e=>{console.error('MYSQL FAIL:', e.code||'', e.message); process.exit(1);});"
+
+
+ROLLBACK RÁPIDO (se der problema)
+=================================
+Comandos:
+sudo cp /etc/mysql/mariadb.conf.d/50-server.cnf.bak /etc/mysql/mariadb.conf.d/50-server.cnf 2>/dev/null || true
+sudo cp /etc/mysql/my.cnf.bak /etc/mysql/my.cnf 2>/dev/null || true
+sudo systemctl restart mariadb
+sudo systemctl status mariadb --no-pager
+
+
+Checklist final
+===============
+[ ] MariaDB escutando em 3306
+[ ] Firewall liberado para origem correta
+[ ] Usuário admin_user com host remoto permitido
+[ ] Test-NetConnection com TcpTestSucceeded=True
+[ ] Teste "SELECT 1" funcionando
+

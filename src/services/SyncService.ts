@@ -1,6 +1,6 @@
 import { Equipment, SyncStatus } from '../types/Equipment';
 import DatabaseService from './DatabaseService';
-import SQLServerService from './SQLServerService';
+import MySQLService from './MySQLService';
 
 interface SyncConfig {
   serverUrl: string;
@@ -104,30 +104,30 @@ class SyncService {
 
   private async createEquipmentOnServer(equipment: Equipment): Promise<void> {
     try {
-      await SQLServerService.createEquipment(equipment);
-      console.log('Equipment created successfully on SQL Server');
+      await MySQLService.createEquipment(equipment);
+      console.log('Equipment created successfully on MySQL');
     } catch (error) {
-      console.error('Error creating equipment on SQL Server:', error);
+      console.error('Error creating equipment on MySQL:', error);
       throw error;
     }
   }
 
   private async updateEquipmentOnServer(equipment: Equipment): Promise<void> {
     try {
-      await SQLServerService.updateEquipment(equipment);
-      console.log('Equipment updated successfully on SQL Server');
+      await MySQLService.updateEquipment(equipment);
+      console.log('Equipment updated successfully on MySQL');
     } catch (error) {
-      console.error('Error updating equipment on SQL Server:', error);
+      console.error('Error updating equipment on MySQL:', error);
       throw error;
     }
   }
 
   private async deleteEquipmentOnServer(equipmentId: number): Promise<void> {
     try {
-      await SQLServerService.deleteEquipment(equipmentId);
-      console.log('Equipment deleted successfully on SQL Server');
+      await MySQLService.deleteEquipment(equipmentId);
+      console.log('Equipment deleted successfully on MySQL');
     } catch (error) {
-      console.error('Error deleting equipment on SQL Server:', error);
+      console.error('Error deleting equipment on MySQL:', error);
       throw error;
     }
   }
