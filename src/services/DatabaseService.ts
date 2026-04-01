@@ -274,6 +274,43 @@ class DatabaseService {
     }
   }
 
+  async upsertEquipmentFromServer(equipment: Equipment): Promise<void> {
+    if (!this.database || !equipment.id) throw new Error('Database not initialized or equipment ID missing');
+
+    const createdAt = equipment.createdAt
+      ? new Date(equipment.createdAt).toISOString()
+      : new Date().toISOString();
+    const updatedAt = equipment.updatedAt
+      ? new Date(equipment.updatedAt).toISOString()
+      : new Date().toISOString();
+
+    const query = `
+      INSERT INTO equipment (id, nome, enderecoIP, localizacao, tipoEquipamento, status, createdAt, updatedAt, syncStatus)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        nome = excluded.nome,
+        enderecoIP = excluded.enderecoIP,
+        localizacao = excluded.localizacao,
+        tipoEquipamento = excluded.tipoEquipamento,
+        status = excluded.status,
+        createdAt = excluded.createdAt,
+        updatedAt = excluded.updatedAt,
+        syncStatus = excluded.syncStatus
+    `;
+
+    await this.database.executeSql(query, [
+      equipment.id,
+      equipment.nome,
+      equipment.enderecoIP,
+      equipment.localizacao,
+      equipment.tipoEquipamento,
+      equipment.status,
+      createdAt,
+      updatedAt,
+      SyncStatus.SYNCED,
+    ]);
+  }
+
   async closeDatabase(): Promise<void> {
     if (this.database) {
       await this.database.close();

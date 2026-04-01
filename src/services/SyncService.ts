@@ -45,24 +45,68 @@ class SyncService {
       
       if (pendingOperations.length === 0) {
         console.log('No pending operations to sync');
-        return;
+      } else {
+        console.log(`Syncing ${pendingOperations.length} pending operations`);
       }
 
-      console.log(`Syncing ${pendingOperations.length} pending operations`);
+      let processedCount = 0;
+      let failedCount = 0;
+      const failedMessages: string[] = [];
 
       for (const operation of pendingOperations) {
         try {
           await this.processSyncOperation(operation);
           await DatabaseService.clearSyncOperation(operation.id);
+          processedCount += 1;
         } catch (error) {
+          failedCount += 1;
+          const message = error instanceof Error ? error.message : String(error);
+          failedMessages.push(`${operation.id}: ${message}`);
           console.error(`Error processing sync operation ${operation.id}:`, error);
         }
       }
 
-      console.log('Sync completed successfully');
+      try {
+        await this.pullServerEquipmentToLocal();
+      } catch (error) {
+        failedCount += 1;
+        const message = error instanceof Error ? error.message : String(error);
+        failedMessages.push(`PULL: ${message}`);
+        console.error('Error pulling server equipment:', error);
+      }
+
+      if (failedCount > 0) {
+        const summary = `Sync finished with errors (${processedCount} ok, ${failedCount} failed): ${failedMessages.join(' | ')}`;
+        console.error(summary);
+        throw new Error(summary);
+      }
+
+      if (pendingOperations.length === 0) {
+        console.log('Sync completed successfully (pull only)');
+      } else {
+        console.log(`Sync completed successfully (${processedCount} operations + pull)`);
+      }
     } catch (error) {
       console.error('Error during sync:', error);
+      throw error;
     }
+  }
+
+  private async pullServerEquipmentToLocal(): Promise<void> {
+    const serverEquipment = await ApiService.getEquipmentList();
+    let upserted = 0;
+
+    for (const equipment of serverEquipment) {
+      await DatabaseService.upsertEquipmentFromServer({
+        ...equipment,
+        createdAt: equipment.createdAt ? new Date(equipment.createdAt) : undefined,
+        updatedAt: equipment.updatedAt ? new Date(equipment.updatedAt) : undefined,
+        syncStatus: SyncStatus.SYNCED,
+      });
+      upserted += 1;
+    }
+
+    console.log(`Pulled ${upserted} equipment records from API`);
   }
 
   private async processSyncOperation(operation: any): Promise<void> {
@@ -99,6 +143,19 @@ class SyncService {
       await ApiService.createEquipment(equipment);
       console.log('Equipment created successfully on API');
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const isDuplicateIdError =
+        /duplicate|duplicado|already exists|primary|unique/i.test(message);
+
+      if (isDuplicateIdError && equipment.id != null) {
+        console.warn(
+          `Create failed for equipment ${equipment.id} due to duplicate key. Falling back to update.`
+        );
+        await ApiService.updateEquipment(equipment);
+        console.log('Equipment updated successfully on API (fallback from create)');
+        return;
+      }
+
       console.error('Error creating equipment on API:', error);
       throw error;
     }

@@ -24,7 +24,6 @@ const EquipmentScreen: React.FC = () => {
     updateEquipment,
     deleteEquipment,
     manualSync,
-    setOnlineStatus,
     refresh
   } = useEquipment();
 
@@ -74,20 +73,17 @@ const EquipmentScreen: React.FC = () => {
       await manualSync();
       Alert.alert('Sucesso', 'Sincronização realizada com sucesso!');
     } catch (error) {
-      Alert.alert('Erro', 'Erro ao sincronizar. Tente novamente.');
+      const message = error instanceof Error ? error.message : 'Erro ao sincronizar. Tente novamente.';
+      Alert.alert('Erro', message);
     }
   }, [manualSync]);
 
   const handleToggleOnlineStatus = useCallback(() => {
-    const newStatus = !syncStatus.isOnline;
-    setOnlineStatus(newStatus);
-    
-    if (newStatus) {
-      Alert.alert('Online', 'Modo online ativado. As operações serão sincronizadas automaticamente.');
-    } else {
-      Alert.alert('Offline', 'Modo offline ativado. As operações serão salvas localmente e sincronizadas quando voltar a ficar online.');
-    }
-  }, [syncStatus.isOnline, setOnlineStatus]);
+    Alert.alert(
+      'Status automático',
+      'O modo online/offline agora segue automaticamente a conexão de rede do dispositivo.'
+    );
+  }, []);
 
   const handleStatusFilter = useCallback((status: EquipmentStatus | null) => {
     setSelectedStatusFilter(status);

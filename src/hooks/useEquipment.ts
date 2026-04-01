@@ -116,6 +116,44 @@ export const useEquipment = () => {
     setSyncStatus(prev => ({ ...prev, isOnline: online }));
   }, []);
 
+  const pingUrl = useCallback(async (url: string, expectedStatus?: number): Promise<boolean> => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    try {
+      const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`, {
+        method: 'GET',
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      if (typeof expectedStatus === 'number') {
+        return response.status === expectedStatus;
+      }
+      return response.ok;
+    } catch {
+      return false;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }, []);
+
+  const checkConnectivity = useCallback(async () => {
+    const checks = await Promise.all([
+      pingUrl('https://clients3.google.com/generate_204', 204),
+      pingUrl('https://www.gstatic.com/generate_204', 204),
+    ]);
+
+    const hasInternet = checks.some(Boolean);
+    setOnlineStatus(hasInternet);
+  }, [pingUrl, setOnlineStatus]);
+
+  // Keep online/offline state automatic based on real API reachability.
+  useEffect(() => {
+    checkConnectivity();
+    const interval = setInterval(checkConnectivity, 15000);
+    return () => clearInterval(interval);
+  }, [checkConnectivity]);
+
   // Get equipment by ID
   const getEquipmentById = useCallback(async (id: number): Promise<Equipment | null> => {
     try {
