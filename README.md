@@ -1,4 +1,4 @@
-# Offline First App - Gestão de Equipamentos
+# Offline First App - Gestão de Equipamentos ABJ
 
 Uma aplicação React Native que implementa o conceito **Offline First** para gestão de equipamentos, utilizando SQLite para armazenamento local e SQL Server para persistência definitiva.
 
