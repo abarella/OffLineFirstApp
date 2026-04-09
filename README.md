@@ -218,6 +218,45 @@ npm run ios
 ```
 ## 📦 Gerar e Instalar APK (Release) — instalação direta no dispositivo
 
+### Windows: script `install-release.bat`
+
+Na **raiz do repositório** existe o arquivo `install-release.bat`, que automatiza o fluxo **build release + instalação no dispositivo** em um único passo.
+
+**O que o script faz**
+
+1. Verifica se o `adb` está disponível no PATH (Android SDK Platform Tools).
+2. Executa `adb devices` para listar aparelhos conectados.
+3. Opcionalmente desinstala o pacote anterior (somente se você usar o parâmetro `/u`).
+4. Roda `gradlew assembleRelease` dentro de `android/` (gera o bundle JS e o APK assinado de release).
+5. Instala `android/app/build/outputs/apk/release/app-release.apk` com `adb install -r`.
+
+**Pré-requisitos**
+
+- Projeto já com `npm install` executado (o Gradle usa o ambiente do projeto).
+- **Platform Tools** instalados e `adb` no PATH.
+- Celular com **depuração USB** ativa, cabo USB conectado.
+- Assinatura de release configurada (`android/gradle.properties` + `signingConfigs.release` em `android/app/build.gradle`), como descrito na seção **Geração de `.aab` para Google Play (Teste Interno)** mais abaixo neste README.
+
+**Uso**
+
+Na raiz do projeto (mesma pasta onde está o `.bat`):
+
+```bat
+install-release.bat
+```
+
+Se a instalação falhar com **assinatura incompatível** (por exemplo, versão *debug* já instalada), rode **uma vez** com `/u` para desinstalar o app atual e instalar o release. **Atenção:** isso **apaga os dados locais** do app no aparelho (SQLite, fila de sync, etc.).
+
+```bat
+install-release.bat /u
+```
+
+Após instalar o **release**, você pode **desligar o USB**: o app **não depende** do Metro nem do PC (diferente do `npm run android` em modo debug).
+
+---
+
+### Passo a passo manual (PowerShell)
+
 Siga estes passos para gerar um APK de *release* (sem depender do Metro) e instalar diretamente no seu dispositivo Android (ex.: `motorola_edge_30`). Os comandos abaixo são para PowerShell no Windows.
 
 1) Verifique se o dispositivo está conectado e com USB debugging ativo:
