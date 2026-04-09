@@ -2,6 +2,9 @@ import { Equipment, SyncStatus } from '../types/Equipment';
 import DatabaseService from './DatabaseService';
 import ApiService from './ApiService';
 
+const isApiNotFoundError = (message: string): boolean =>
+  /\b404\b|nao encontrado|não encontrado|not found/i.test(message);
+
 class SyncService {
   private isOnline: boolean = false;
   private syncInterval: NodeJS.Timeout | null = null;
@@ -166,6 +169,14 @@ class SyncService {
       await ApiService.updateEquipment(equipment);
       console.log('Equipment updated successfully on API');
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (isApiNotFoundError(message)) {
+        console.warn(
+          `Update failed for equipment ${equipment.id} (missing on server, e.g. empty DB). Falling back to create.`
+        );
+        await this.createEquipmentOnServer(equipment);
+        return;
+      }
       console.error('Error updating equipment on API:', error);
       throw error;
     }
@@ -176,6 +187,13 @@ class SyncService {
       await ApiService.deleteEquipment(equipmentId);
       console.log('Equipment deleted successfully on API');
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (isApiNotFoundError(message)) {
+        console.warn(
+          `Delete for equipment ${equipmentId} skipped (already absent on server).`
+        );
+        return;
+      }
       console.error('Error deleting equipment on API:', error);
       throw error;
     }
