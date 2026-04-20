@@ -284,18 +284,12 @@ class DatabaseService {
       ? new Date(equipment.updatedAt).toISOString()
       : new Date().toISOString();
 
+    // Android 9 devices may have SQLite versions that do not support
+    // "ON CONFLICT ... DO UPDATE". Use INSERT OR REPLACE for compatibility.
     const query = `
-      INSERT INTO equipment (id, nome, enderecoIP, localizacao, tipoEquipamento, status, createdAt, updatedAt, syncStatus)
+      INSERT OR REPLACE INTO equipment
+      (id, nome, enderecoIP, localizacao, tipoEquipamento, status, createdAt, updatedAt, syncStatus)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ON CONFLICT(id) DO UPDATE SET
-        nome = excluded.nome,
-        enderecoIP = excluded.enderecoIP,
-        localizacao = excluded.localizacao,
-        tipoEquipamento = excluded.tipoEquipamento,
-        status = excluded.status,
-        createdAt = excluded.createdAt,
-        updatedAt = excluded.updatedAt,
-        syncStatus = excluded.syncStatus
     `;
 
     await this.database.executeSql(query, [

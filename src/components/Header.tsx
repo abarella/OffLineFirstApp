@@ -13,6 +13,7 @@ interface HeaderProps {
     pendingOperations: number;
     lastSync: Date | null;
     isOnline: boolean;
+    newRemoteChanges: number;
   };
   onManualSync: () => void;
   onToggleOnlineStatus: () => void;
@@ -65,6 +66,11 @@ const Header: React.FC<HeaderProps> = ({
           <Text style={[styles.statusText, { color: getStatusColor(syncStatus.isOnline) }]}>
             {getStatusText(syncStatus.isOnline)}
           </Text>
+          {syncStatus.newRemoteChanges > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{syncStatus.newRemoteChanges}</Text>
+            </View>
+          )}
         </View>
       </View>
 
@@ -85,6 +91,15 @@ const Header: React.FC<HeaderProps> = ({
             {formatLastSync(syncStatus.lastSync)}
           </Text>
         </View>
+
+        {syncStatus.newRemoteChanges > 0 && (
+          <View style={styles.syncStatusRow}>
+            <Text style={styles.syncLabel}>Novidades:</Text>
+            <Text style={[styles.syncValue, { color: '#FF9800' }]}>
+              {syncStatus.newRemoteChanges} atualização(ões) recebida(s)
+            </Text>
+          </View>
+        )}
 
         <View style={styles.actionButtons}>
           <TouchableOpacity
@@ -156,6 +171,21 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 14,
     fontWeight: '600',
+  },
+  badge: {
+    marginLeft: 8,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    backgroundColor: '#FF3B30',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
   },
   syncInfo: {
     backgroundColor: '#f8f9fa',

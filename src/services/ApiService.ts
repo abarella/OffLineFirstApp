@@ -1,6 +1,13 @@
 import { API_CONFIG } from '../config/database';
 import { Equipment } from '../types/Equipment';
 
+let fcmTokenForHeaders: string | null = null;
+
+/** Permite que o servidor exclua este dispositivo do broadcast FCM após mutações feitas pelo próprio app. */
+export function setFcmTokenForApiHeaders(token: string | null): void {
+  fcmTokenForHeaders = token;
+}
+
 class ApiService {
   private baseUrl = API_CONFIG.baseUrl;
   private headers = API_CONFIG.headers;
@@ -22,12 +29,17 @@ class ApiService {
   }
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
+    const merged: Record<string, string> = {
+      ...this.headers,
+      ...(init?.headers as Record<string, string> | undefined),
+    };
+    if (fcmTokenForHeaders) {
+      merged['X-Fcm-Token'] = fcmTokenForHeaders;
+    }
+
     const response = await fetch(`${this.baseUrl}${path}`, {
       ...init,
-      headers: {
-        ...this.headers,
-        ...(init?.headers || {}),
-      },
+      headers: merged,
     });
 
     if (!response.ok) {
@@ -79,6 +91,13 @@ class ApiService {
   async deleteEquipment(id: number): Promise<void> {
     await this.request<void>(`${API_CONFIG.endpoints.equipment}/${id}`, {
       method: 'DELETE',
+    });
+  }
+
+  async registerFcmToken(token: string): Promise<void> {
+    await this.request<void>(API_CONFIG.endpoints.fcmTokens, {
+      method: 'POST',
+      body: JSON.stringify({ token }),
     });
   }
 }

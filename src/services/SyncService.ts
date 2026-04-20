@@ -1,6 +1,7 @@
 import { Equipment, SyncStatus } from '../types/Equipment';
 import DatabaseService from './DatabaseService';
 import ApiService from './ApiService';
+import { clearLauncherBadge } from './PushBadge';
 
 const isApiNotFoundError = (message: string): boolean =>
   /\b404\b|nao encontrado|não encontrado|not found/i.test(message);
@@ -8,6 +9,7 @@ const isApiNotFoundError = (message: string): boolean =>
 class SyncService {
   private isOnline: boolean = false;
   private syncInterval: NodeJS.Timeout | null = null;
+  private remoteChangesUnread: number = 0;
 
   setOnlineStatus(online: boolean): void {
     this.isOnline = online;
@@ -70,7 +72,10 @@ class SyncService {
       }
 
       try {
-        await this.pullServerEquipmentToLocal();
+        const pulledChanges = await this.pullServerEquipmentToLocal();
+        if (pulledChanges > 0) {
+          this.remoteChangesUnread += pulledChanges;
+        }
       } catch (error) {
         failedCount += 1;
         const message = error instanceof Error ? error.message : String(error);
@@ -95,21 +100,37 @@ class SyncService {
     }
   }
 
-  private async pullServerEquipmentToLocal(): Promise<void> {
+  private async pullServerEquipmentToLocal(): Promise<number> {
     const serverEquipment = await ApiService.getEquipmentList();
-    let upserted = 0;
+    let changed = 0;
 
     for (const equipment of serverEquipment) {
+      const local = equipment.id
+        ? await DatabaseService.getEquipmentById(equipment.id)
+        : null;
+      const hasChanged =
+        !local ||
+        local.nome !== equipment.nome ||
+        local.enderecoIP !== equipment.enderecoIP ||
+        local.localizacao !== equipment.localizacao ||
+        local.tipoEquipamento !== equipment.tipoEquipamento ||
+        local.status !== equipment.status ||
+        new Date(local.updatedAt || 0).getTime() !== new Date(equipment.updatedAt || 0).getTime();
+
       await DatabaseService.upsertEquipmentFromServer({
         ...equipment,
         createdAt: equipment.createdAt ? new Date(equipment.createdAt) : undefined,
         updatedAt: equipment.updatedAt ? new Date(equipment.updatedAt) : undefined,
         syncStatus: SyncStatus.SYNCED,
       });
-      upserted += 1;
+
+      if (hasChanged) {
+        changed += 1;
+      }
     }
 
-    console.log(`Pulled ${upserted} equipment records from API`);
+    console.log(`Pulled ${serverEquipment.length} equipment records from API (${changed} changed)`);
+    return changed;
   }
 
   private async processSyncOperation(operation: any): Promise<void> {
@@ -213,6 +234,7 @@ class SyncService {
     pendingOperations: number;
     lastSync: Date | null;
     isOnline: boolean;
+    newRemoteChanges: number;
   }> {
     const pendingOperations = await DatabaseService.getPendingSyncOperations();
     
@@ -221,8 +243,14 @@ class SyncService {
       lastSync: pendingOperations.length > 0 ? 
         new Date(Math.max(...pendingOperations.map(op => op.timestamp.getTime()))) : 
         null,
-      isOnline: this.isOnline
+      isOnline: this.isOnline,
+      newRemoteChanges: this.remoteChangesUnread,
     };
+  }
+
+  acknowledgeRemoteChanges(): void {
+    this.remoteChangesUnread = 0;
+    void clearLauncherBadge();
   }
 
   // Cleanup method

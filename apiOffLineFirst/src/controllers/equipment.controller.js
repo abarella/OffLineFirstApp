@@ -1,4 +1,14 @@
 const pool = require("../config/db");
+const { notifyRemoteEquipmentChanged } = require("../services/fcmPush.service");
+
+function scheduleRemoteNotify(req) {
+  const excludeToken = req.get("X-Fcm-Token") || null;
+  setImmediate(() => {
+    notifyRemoteEquipmentChanged(excludeToken).catch((err) => {
+      console.warn("[FCM] notifyRemoteEquipmentChanged:", err?.message || err);
+    });
+  });
+}
 
 const mapEquipment = (row) => ({
   id: row.id,
@@ -54,6 +64,7 @@ const createEquipment = async (req, res) => {
       );
     }
 
+    scheduleRemoteNotify(req);
     return res.status(201).json({
       id: id || result.insertId,
       nome,
@@ -81,6 +92,7 @@ const updateEquipment = async (req, res) => {
       return res.status(404).json({ message: "Equipamento nao encontrado" });
     }
 
+    scheduleRemoteNotify(req);
     return res.json({ message: "Equipamento atualizado com sucesso" });
   } catch (error) {
     return res.status(500).json({ message: "Erro ao atualizar equipamento", error: error.message });
@@ -93,6 +105,7 @@ const deleteEquipment = async (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Equipamento nao encontrado" });
     }
+    scheduleRemoteNotify(req);
     return res.status(204).send();
   } catch (error) {
     return res.status(500).json({ message: "Erro ao remover equipamento", error: error.message });

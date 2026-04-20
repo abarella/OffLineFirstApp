@@ -2,6 +2,8 @@
  * @format
  */
 
+import './src/fcmBackground';
+
 import { AppRegistry, LogBox } from 'react-native';
 
 // Suppress SafeAreaView deprecation warning early

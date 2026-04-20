@@ -24,6 +24,7 @@ const EquipmentScreen: React.FC = () => {
     updateEquipment,
     deleteEquipment,
     manualSync,
+    acknowledgeRemoteChanges,
     refresh
   } = useEquipment();
 
@@ -90,8 +91,9 @@ const EquipmentScreen: React.FC = () => {
   }, []);
 
   const handleRefresh = useCallback(async () => {
+    acknowledgeRemoteChanges();
     await refresh();
-  }, [refresh]);
+  }, [acknowledgeRemoteChanges, refresh]);
 
   // Show error if any
   if (error) {

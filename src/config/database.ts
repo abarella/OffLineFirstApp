@@ -46,6 +46,7 @@ export const API_CONFIG = {
   baseUrl: API_BASE_OFFICIAL,
   endpoints: {
     equipment: '/equipment',
+    fcmTokens: '/fcm/tokens',
   },
   headers: {
     'Content-Type': 'application/json',

@@ -255,6 +255,32 @@ Após instalar o **release**, você pode **desligar o USB**: o app **não depend
 
 ---
 
+## Sino / badge com app fechado (FCM — opção 2)
+
+Para o **ícone do launcher** refletir novidades mesmo com o app em segundo plano ou fechado, o fluxo usa **Firebase Cloud Messaging** no Android, **Notifee** para contagem de badge e a **API Node** (`apiOffLineFirst`) para **registrar tokens** e **disparar push** quando alguém altera equipamentos no servidor.
+
+### No app (Android)
+
+1. No [Firebase Console](https://console.firebase.google.com/), crie um projeto (ou use um existente), adicione um app **Android** com o ID `com.offlinefirstapp` e baixe o arquivo **`google-services.json`**.
+2. Substitua o conteúdo de `android/app/google-services.json` pelo arquivo oficial do Firebase (o arquivo de exemplo do repositório só serve para o Gradle compilar; **sem o JSON real o FCM não entrega mensagens**).
+3. Gere um novo APK/AAB (`install-release.bat` ou `gradlew assembleRelease`). Na primeira abertura, o app pede permissão de notificação (Android 13+) e registra o token em `POST https://abjinfo.com.br/api/fcm/tokens` (mesma base da API de equipamentos).
+
+### No servidor (MySQL + Node)
+
+1. Execute o script SQL `apiOffLineFirst/sql/fcm_tokens.sql` no banco usado pela API (tabela `fcm_tokens`).
+2. Configure credenciais do **Firebase Admin** na API, **uma** das opções abaixo (veja também `apiOffLineFirst/.env.example`):
+   - **`FCM_SERVICE_ACCOUNT_JSON`**: JSON da conta de serviço em **uma única linha** (sem quebras), ou
+   - **`GOOGLE_APPLICATION_CREDENTIALS`**: caminho absoluto para o arquivo `.json` da conta de serviço.
+3. Reinicie a API. Sem isso, o CRUD continua funcionando, mas o log mostrará que o push está desativado.
+4. Confirme que o proxy (Nginx) encaminha **`/api/fcm/`** da mesma forma que **`/api/equipment/`** para o Node na porta interna.
+
+### Comportamento
+
+- Após **criar, atualizar ou excluir** um equipamento pela API, o servidor envia FCM para todos os tokens, **exceto** o dispositivo que enviou o header **`X-Fcm-Token`** (o app preenche automaticamente após obter o token).
+- O payload inclui `data.type = remote_update`; o app incrementa o **badge** do launcher. Ao **sincronizar** ou **dar pull-to-refresh** (fluxo que chama `acknowledgeRemoteChanges`), o badge é **zerado**.
+
+---
+
 ### Passo a passo manual (PowerShell)
 
 Siga estes passos para gerar um APK de *release* (sem depender do Metro) e instalar diretamente no seu dispositivo Android (ex.: `motorola_edge_30`). Os comandos abaixo são para PowerShell no Windows.

@@ -10,7 +10,8 @@ export const useEquipment = () => {
   const [syncStatus, setSyncStatus] = useState({
     pendingOperations: 0,
     lastSync: null as Date | null,
-    isOnline: false
+    isOnline: false,
+    newRemoteChanges: 0,
   });
 
   // Load equipment from local database
@@ -47,13 +48,19 @@ export const useEquipment = () => {
       
       // Reload equipment list
       await loadEquipment();
+
+      // If online, synchronize right away after local write.
+      if (syncStatus.isOnline) {
+        await SyncService.manualSync();
+        await loadEquipment();
+      }
       
       return id;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao adicionar equipamento');
       throw err;
     }
-  }, [loadEquipment]);
+  }, [loadEquipment, syncStatus.isOnline]);
 
   // Update equipment
   const updateEquipment = useCallback(async (id: number, updates: Partial<Equipment>) => {
@@ -75,11 +82,17 @@ export const useEquipment = () => {
       
       // Reload equipment list
       await loadEquipment();
+
+      // If online, synchronize right away after local write.
+      if (syncStatus.isOnline) {
+        await SyncService.manualSync();
+        await loadEquipment();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao atualizar equipamento');
       throw err;
     }
-  }, [equipment, loadEquipment]);
+  }, [equipment, loadEquipment, syncStatus.isOnline]);
 
   // Delete equipment
   const deleteEquipment = useCallback(async (id: number) => {
@@ -90,17 +103,25 @@ export const useEquipment = () => {
       
       // Reload equipment list
       await loadEquipment();
+
+      // If online, synchronize right away after local write.
+      if (syncStatus.isOnline) {
+        await SyncService.manualSync();
+        await loadEquipment();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao deletar equipamento');
       throw err;
     }
-  }, [loadEquipment]);
+  }, [loadEquipment, syncStatus.isOnline]);
 
   // Manual sync
   const manualSync = useCallback(async () => {
     try {
       setError(null);
       await SyncService.manualSync();
+      SyncService.acknowledgeRemoteChanges();
+      setSyncStatus(prev => ({ ...prev, newRemoteChanges: 0 }));
       
       // Reload equipment and sync status
       await loadEquipment();
@@ -114,6 +135,11 @@ export const useEquipment = () => {
   const setOnlineStatus = useCallback((online: boolean) => {
     SyncService.setOnlineStatus(online);
     setSyncStatus(prev => ({ ...prev, isOnline: online }));
+  }, []);
+
+  const acknowledgeRemoteChanges = useCallback(() => {
+    SyncService.acknowledgeRemoteChanges();
+    setSyncStatus(prev => ({ ...prev, newRemoteChanges: 0 }));
   }, []);
 
   const pingUrl = useCallback(async (url: string, expectedStatus?: number): Promise<boolean> => {
@@ -212,6 +238,7 @@ export const useEquipment = () => {
     searchEquipment,
     manualSync,
     setOnlineStatus,
+    acknowledgeRemoteChanges,
     refresh: loadEquipment
   };
 };
